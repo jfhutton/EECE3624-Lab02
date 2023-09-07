@@ -25,43 +25,42 @@ rjmp main   ; set reset vector to point to the main code entry point
 
 main:       ; jump here on reset
 
-; initialize the stack (RAMEND = 0x10FF by default)
-ldi R16, HIGH(RAMEND)
-out SPH, R16
-ldi R16, low(RAMEND)
-out SPL, R16
+    ; initialize the stack (RAMEND = 0x10FF by default)
+    ldi R16, HIGH(RAMEND)
+    out SPH, R16
+    ldi R16, low(RAMEND)
+    out SPL, R16
 
-; set PORTC.3 pin as output via PORTC's Data Direction Register
-ldi R16, (1<<DDC3)  ; R16 = 00001000 (bit 3 set to high)
-out DDRC, R16       ; DDRC = 00001000, making PORTC.3 an output pin
+    ; set PORTC.3 pin as output via PORTC's Data Direction Register
+    ldi R16, (1<<DDC3)  ; R16 = 0b00001000 (bit 3 set to high)
+    out DDRC, R16       ; DDRC = 0b00001000, making PORTC.3 an output pin
 
-; set bit 3 of PORTC to turn off the LED (active low)
-sbi PORTC, PORTC3
+    ; set bit 3 of PORTC to turn off the LED (active low)
+    sbi PORTC, PORTC3
 
 mainLoop:
+    ; clear bit 3 of PORTC to turn on LED (active low)
+    cbi PORTC, PORTC3
 
-; clear bit 3 of PORTC to turn on LED (active low)
-cbi PORTC, PORTC3
-
-; kill some time
-ldi R16, 40                     ; R16 is outer loop counter
+    ; kill some time
+    ldi R16, 40                 ; R16 is outer loop counter
 outer_loop1:
-    ldi R24, low($4000)         ; load low and high parts of R25:R24 pair with
-    ldi R25, high($4000)        ; loop count by loading registers separately
+    ldi R24, low(0x4000)        ; load low and high parts of R25:R24 pair with
+    ldi R25, high(0x4000)       ; loop count by loading registers separately
     inner_loop1:
         sbiw R24, 1             ; decrement inner loop counter (R25:R24 pair)
         brne inner_loop1        ; loop back if R25:R24 isn't zero
     dec R16                     ; decrement the outer loop counter (R16)
     brne outer_loop1            ; loop back if R16 isn't zero
 
-; turn off LED (set bit 3 of PORTC)
-sbi PORTC, PORTC3
+    ; turn off LED (set bit 3 of PORTC)
+    sbi PORTC, PORTC3
 
-; kill some time
-ldi R16, 40                     ; R16 is outer loop counter
+    ; kill some time
+    ldi R16, 40                 ; R16 is outer loop counter
 outer_loop2:
-    ldi R24, low($4000)         ; load low and high parts of R25:R24 pair with
-    ldi R25, high($4000)        ; loop count by loading registers separately
+    ldi R24, low(0x4000)        ; load low and high parts of R25:R24 pair with
+    ldi R25, high(0x4000)       ; loop count by loading registers separately
     inner_loop2:
         sbiw R24, 1             ; decrement inner loop counter (R25:R24 pair)
         brne inner_loop2        ; loop back if R25:R24 isn't zero
@@ -69,5 +68,4 @@ outer_loop2:
     brne outer_loop2            ; loop back if R16 isn't zero
 
 ; play it again, Sam...
-rjmp mainLoop
-
+    rjmp mainLoop
